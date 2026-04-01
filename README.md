@@ -1,4 +1,4 @@
-# Sanaa-Sync
+# Sanaa-Sync : Swahilipot Hub Creatives Management System
 An integrated Resource & Talent Management Ecosystem designed specifically for the Swahilipot Hub Creatives Department.
 
 Talent Intelligence: A dynamic database that tracks artists' evolving skills (Primary/Secondary arts), their vetting status, and their professional "Success Stories" to increase their market value.
@@ -54,7 +54,38 @@ Availability   - A Boolean field is_hired that toogles based on active project l
 File Storage   - Move from Google Drive to Cloudinary or AWS S3 for artist samples.
 UI/UX          - Tailwind CSS (Clean, "Swiss" style) to ensure artists take the tech seriously.
 
+## Proposed Project File Structure & Architecture
+### Following the MVT(Model-Template-View)
+ Model (M): The data structure (Database).
 
+ Template (T): The presentation layer (HTML/CSS/Tailwind). This is the "View" in traditional MVC.
+
+ View (V): The business logic that bridges the Model and Template. This is the "Controller" in traditional MVC.
+### File Structure
+sanaa_sync/
+├── manage.py
+├── core/                  # Project Configuration
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── apps/                  # Modular Apps Folder
+│   ├── accounts/          # Custom User, Roles (Admin, Creative, Client)
+│   │   ├── models.py      # Primary/Secondary Arts Logic
+│   │   └── views.py
+│   ├── resources/         # Booking System & Asset Management
+│   │   ├── models.py      # Spaces, Equipment, Hall Models
+│   │   └── admin.py       # Approval Logic
+│   ├── marketplace/       # Job Board & Opportunity "Push"
+│   │   ├── models.py      # Job Postings, Applications
+│   │   └── services.py    # Vetting & Notification logic
+│   └── operations/        # Internal Dept. Tools
+│       ├── models.py      # Duty Roster, Success Stories
+│       └── signals.py     # Auto-assign staff when hall is booked
+├── static/                # Tailwind CSS, JS, Images
+├── templates/             # Global HTML Templates (Swiss Aesthetic)
+├── media/                 # Artist Samples/Portfolios (Uploaded Files)
+├── requirements.txt       # Dependencies
+└── README.md              # Project Documentation
 ## Key Challenges & Goals to Solve
 The "Pay Gap": By showcasing "Work Done Behind the Scenes" and "Success Stories," the platform aims to justify higher rates for artists.
 
