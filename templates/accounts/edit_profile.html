@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Sanaa-Sync | Edit Profile{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: var(--sph-card); border: 1px solid #333; padding: 40px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 15px 35px rgba(0,0,0,0.4);">
+        
+        <header style="margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 15px;">
+            <h2 style="color: var(--sph-blue); margin: 0; letter-spacing: -1px;">Update Your Details</h2>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 5px;">Keep your artist contact info up to date.</p>
+        </header>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="edit-form-grid" style="display: grid; gap: 20px;">
+                {% for field in form %}
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 5px;">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p style="color: #ff4d4d; font-size: 0.7rem; margin-top: 4px;">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 35px; display: flex; gap: 15px;">
+                <button type="submit" class="btn-sph" style="flex: 2; padding: 12px;">
+                    Save Changes
+                </button>
+                <a href="{% url 'profile' %}" style="flex: 1; text-align: center; background: #222; color: #888; text-decoration: none; padding: 12px; border-radius: 4px; font-size: 0.9rem; border: 1px solid #333;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Styling for Django auto-generated inputs */
+    input {
+        width: 100%;
+        padding: 12px;
+        background: #0f0f0f !important;
+        border: 1px solid #333 !important;
+        border-radius: 6px;
+        color: white !important;
+        box-sizing: border-box;
+    }
+    input:focus { border-color: var(--sph-blue) !important; outline: none; }
+</style>
+{% endblock %}

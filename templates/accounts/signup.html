@@ -1,54 +1,65 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="signup-container" style="background: #0a0a0a; min-height: 100vh; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif;">
-    <div class="signup-card" style="background: #161616; padding: 40px; border-radius: 8px; border: 1px solid #333; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+<div class="signup-container" style="background: var(--sph-dark); min-height: 90vh; display: flex; align-items: center; justify-content: center; color: white;">
+    <div class="signup-card" style="background: var(--sph-card); padding: 45px; border-radius: 15px; border: 1px solid #333; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
         
-        <div class="logo-area" style="text-align: center; margin-bottom: 30px;">
-            <h2 style="font-weight: 700; letter-spacing: -1px; color: #007bff;">SANAA-SYNC</h2>
-            <p style="color: #888; font-size: 0.9rem;">Join the Swahilipot Creative Hub</p>
+        <div class="logo-area" style="text-align: center; margin-bottom: 35px;">
+            <h1 style="font-weight: 800; letter-spacing: -2px; color: var(--sph-blue); margin: 0;">SANAA-SYNC</h1>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">Creative Hub Registration</p>
         </div>
 
-        <form method="post" style="display: flex; flex-direction: column; gap: 20px;">
+        <form method="post" style="display: flex; flex-direction: column; gap: 5px;">
             {% csrf_token %}
             
             <div class="form-fields">
                 {% for field in form %}
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-size: 0.8rem; color: #aaa;">{{ field.label }}</label>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase;">{{ field.label }}</label>
                         {{ field }}
                         {% if field.errors %}
-                            <p style="color: #ff4d4d; font-size: 0.75rem; margin-top: 5px;">{{ field.errors.0 }}</p>
+                            <p style="color: #ff4d4d; font-size: 0.7rem; margin-top: 5px; font-weight: 600;">{{ field.errors.0 }}</p>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <p style="color: #444; font-size: 0.65rem; margin-top: 5px; line-height: 1.2;">{{ field.help_text }}</p>
                         {% endif %}
                     </div>
                 {% endfor %}
             </div>
 
-            <button type="submit" style="background: #007bff; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: 0.3s;">
-                Create Artist Profile
+            <button type="submit" class="btn-sph" style="width: 100%; padding: 14px; margin-top: 10px; font-size: 1rem; letter-spacing: 1px;">
+                CREATE ARTIST PROFILE
             </button>
         </form>
 
-        <div style="margin-top: 25px; text-align: center; border-top: 1px solid #333; padding-top: 20px;">
-            <p style="font-size: 0.85rem; color: #666;">
-                Already a member? <a href="/accounts/login/" style="color: #007bff; text-decoration: none;">Sign In</a>
+        <div style="margin-top: 30px; text-align: center; border-top: 1px solid #222; padding-top: 25px;">
+            <p style="font-size: 0.85rem; color: #555;">
+                Already a member? <a href="{% url 'login' %}" style="color: var(--sph-blue); text-decoration: none; font-weight: 700; margin-left: 5px;">Sign In</a>
             </p>
         </div>
     </div>
 </div>
 
 <style>
-    /* Styling the Django default inputs to match the theme */
+    /* Targeting Django's auto-generated inputs */
     input {
         width: 100%;
-        padding: 10px;
-        background: #222;
-        border: 1px solid #444;
-        border-radius: 4px;
-        color: white;
-        outline: none;
+        padding: 12px;
+        background: #0f0f0f !important;
+        border: 1px solid #333 !important;
+        border-radius: 6px;
+        color: white !important;
+        font-family: 'Inter', sans-serif;
+        box-sizing: border-box;
     }
-    input:focus { border-color: #007bff; }
-    button:hover { background: #0056b3 !important; }
+    input:focus { 
+        border-color: var(--sph-blue) !important;
+        outline: none;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.1);
+    }
+    .btn-sph:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+    }
 </style>
 {% endblock %}

@@ -7,101 +7,231 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-    body { font-family: 'Space Grotesk', sans-serif; background-color: #fafafa; }
-    .swahili-blue { background-color: #0C6FBD; }
-    .text-swahili-blue { color: #0C6FBD; }
-    
-    /* Swahilipot Blue Gradient */
-    .brand-gradient {
-        background: linear-gradient(135deg, #0C6FBD 0%, #084d85 100%);
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #fafafa; overflow-x: hidden; }
+        .swahili-blue { background-color: #0C6FBD; }
+        .text-swahili-blue { color: #0C6FBD; }
+        
+        /* Swahilipot Blue Gradient */
+        .brand-gradient {
+            background: linear-gradient(135deg, #0C6FBD 0%, #084d85 100%);
+        }
+
+        /* Pinterest Inspo: Infinite Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .marquee-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            position: absolute;
+            bottom: 10%;
+            width: 100%;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 25s linear infinite;
+            font-size: 12rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px #ffffff;
+        }
+
+        /* Neubrutalism Hover Effect */
+        .caesar-card { transition: all 0.2s ease; }
+        .caesar-card:hover {
+            transform: translate(-6px, -6px);
+            box-shadow: 12px 12px 0px 0px #121212;
+            border-color: #0C6FBD;
+        }
+
+        .nav-link-custom {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: 0.2s;
+        }
+        /* 1. The "Interactive Stack" Card Effect */
+    .caesar-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: white;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .caesar-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: #0C6FBD;
+        z-index: -1;
+        transition: transform 0.3s ease;
     }
 
     .caesar-card:hover {
-        transform: translate(-4px, -4px);
-        box-shadow: 12px 12px 0px 0px #121212; /* Using Cod Gray for the shadow */
+        transform: translate(-8px, -8px);
+        border-color: black;
     }
-</style>
+
+    .caesar-card:hover::before {
+        transform: translate(16px, 16px); /* The "Blue Shadow" pops out */
+    }
+
+    /* 2. Asymmetric Grid Layout */
+    .creative-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 60px; /* More breathing room */
+    }
+
+    /* Make every 2nd card slightly offset for that "Pinterest" feel */
+    @media (min-width: 768px) {
+        .creative-grid div:nth-child(even) {
+            transform: translateY(40px);
+        }
+    }
+
+    /* 3. Skill Badge Animation */
+    .skill-tag {
+        transition: 0.3s;
+        border: 1.5px solid black;
+    }
+    .caesar-card:hover .skill-tag {
+        transform: rotate(-3deg) scale(1.05);
+    }
+    </style>
 </head>
 <body class="text-slate-900">
 
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b-2 border-black px-8 py-4 flex justify-between items-center">
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-2 border-black px-8 py-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-black rotate-45 flex items-center justify-center">
                 <span class="text-white -rotate-45 font-bold text-xs">S</span>
             </div>
             <h1 class="text-2xl font-bold tracking-tighter uppercase">Sanaa<span class="text-[#6D001A]">Sync</span></h1>
         </div>
-        <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest">
-            <a href="/admin" class="hover:text-[#6D001A] transition-colors">Admin Portal</a>
-            <a href="{% url 'join_hub' %}" class="your-button-css-classes">
-    Join the Hub
-</a>
+        
+        <div class="flex items-center gap-6">
+            <a href="{% url 'gig_list' %}" class="nav-link-custom hover:text-[#0C6FBD]">Gigs</a>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="nav-link-custom hover:text-[#0C6FBD]">My Profile</a>
+                {% if user.is_staff %}
+                    <a href="/admin" class="nav-link-custom text-[#6D001A] border-l-2 border-black pl-6">Admin Portal</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link-custom hover:text-[#0C6FBD]">Login</a>
+                <a href="{% url 'join_hub' %}" class="bg-[#0C6FBD] text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+                    Join the Hub
+                </a>
+            {% endif %}
         </div>
     </nav>
 
-    <header class="relative overflow-hidden bg-[#121212] py-24 px-8">
-    <div class="absolute top-0 right-0 w-1/2 h-full brand-gradient skew-x-12 translate-x-20 opacity-40"></div>
-    
-    <div class="relative z-10 max-w-4xl">
-        <span class="text-[#0C6FBD] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Official Swahilipot Hub Portal</span>
-        <h2 class="text-7xl md:text-8xl font-bold text-white leading-none mb-6">
-            PROJECT <br> <span class="text-transparent" style="-webkit-text-stroke: 1px #0C6FBD;">CAESAR</span>
-        </h2>
-        <p class="text-slate-400 text-lg md:text-xl max-w-xl leading-relaxed">
-            Digitizing the coastal creative ecosystem. From talent discovery to seamless resource booking.
-        </p>
-    </div>
-</header>
-
-    <main class="py-20 px-8 max-w-7xl mx-auto">
-        <div class="flex justify-between items-end mb-12">
-            <div>
-                <h3 class="text-4xl font-bold tracking-tighter uppercase">Vetted Creatives</h3>
-                <div class="h-2 w-24 bg-[#6D001A] mt-2"></div>
+    <header class="relative overflow-hidden bg-[#121212] py-32 px-8 min-h-[70vh] flex items-center">
+        <div class="marquee-wrapper">
+            <div class="marquee-content">
+                CREATIVE • TECH • CULTURE • SYNC • CREATIVE • TECH • CULTURE • SYNC • 
             </div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-tidget">Showing {{ artists.count }} verified profiles</p>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {% for artist in artists %}
-            <div class="caesar-card bg-white border-2 border-black p-8 flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-12 h-12 bg-slate-100 rounded-full border border-black flex items-center justify-center font-bold">
-                            {{ artist.username|slice:":1"|upper }}
-                        </div>
-                        <span class="text-[10px] font-bold py-1 px-2 border border-black uppercase tracking-tighter">Verified</span>
-                    </div>
-                    
-                    <h4 class="text-2xl font-bold uppercase mb-2">{{ artist.username }}</h4>
-                    <p class="text-slate-600 text-sm leading-relaxed mb-6 italic">
-                        "{{ artist.bio|default:'Creative spirit at Swahilipot Hub.'|truncatewords:20 }}"
-                    </p>
-                </div>
+        <div class="absolute top-0 right-0 w-1/2 h-full brand-gradient skew-x-12 translate-x-32 opacity-30"></div>
+        
+        <div class="relative z-10 max-w-5xl">
+            <span class="text-[#0C6FBD] font-bold tracking-[0.4em] uppercase text-xs mb-6 block border-l-4 border-[#0C6FBD] pl-4">Digitalizing the Swahilipot Ecosystem</span>
+            <h2 class="text-7xl md:text-9xl font-bold text-white leading-[0.85] mb-8 tracking-tighter">
+                PROJECT <br> <span class="text-transparent" style="-webkit-text-stroke: 1.5px #0C6FBD;">CAESAR</span>
+            </h2>
+            <p class="text-slate-400 text-lg md:text-xl max-w-xl leading-relaxed mb-10">
+                A frictionless portal for talent discovery and creative resource management in Mombasa.
+            </p>
+            <div class="flex gap-4">
+                <a href="{% url 'join_hub' %}" class="bg-[#0C6FBD] text-white px-8 py-4 font-bold uppercase text-sm border-2 border-white hover:bg-white hover:text-black transition-all">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </header>
 
-                <div class="flex flex-wrap gap-2 mt-auto pt-6 border-t border-slate-100">
+    <main class="py-32 px-8 max-w-7xl mx-auto">
+    <div class="relative mb-24">
+        <h3 class="text-8xl font-black tracking-tighter uppercase leading-[0.8] opacity-5 absolute -top-10 -left-10 select-none">
+            TALENT<br>DIRECTORY
+        </h3>
+        <div class="relative z-10">
+            <h3 class="text-6xl font-bold tracking-tighter uppercase italic">Vetted <span class="text-[#0C6FBD]">Creatives</span></h3>
+            <p class="text-sm font-black text-slate-500 uppercase tracking-widest mt-4 flex items-center gap-2">
+                <span class="w-12 h-[2px] bg-black"></span> 
+                {{ artists.count }} Verified Masterminds
+            </p>
+        </div>
+    </div>
+    
+    <div class="creative-grid">
+        {% for artist in artists %}
+        <div class="caesar-card border-2 border-black p-10 flex flex-col min-h-[450px]">
+            
+            <div class="flex justify-between items-start mb-10">
+                <div class="text-[10px] font-black tracking-widest uppercase bg-black text-white px-3 py-1">
+                    Ref: {{ artist.id|add:"1000" }}
+                </div>
+                <div class="w-10 h-10 border-2 border-black flex items-center justify-center group-hover:bg-[#0C6FBD] transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M7 17l9.2-9.2M17 17V7H7" />
+                    </svg>
+                </div>
+            </div>
+
+           <div class="mb-auto">
+    <h4 class="text-4xl font-black uppercase leading-none mb-4 group-hover:text-[#0C6FBD] transition-colors">
+        {{ artist.username }}
+    </h4>
+    <div class="h-1 w-16 bg-[#6D001A] mb-6"></div>
+    
+    <p class="text-slate-500 text-lg leading-snug font-medium mb-8" spellcheck="false">
+        "{{ artist.bio|default:'Pushing the boundaries of coastal art and technology at the Hub.'|truncatewords:15 }}"
+    </p>
+</div>
+            <div class="pt-8 border-t-2 border-slate-100">
+                <div class="flex flex-wrap gap-3 mb-8">
                     {% for skill in artist.skills.all %}
-                        <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest 
-                            {% if skill.priority == 'primary' %}
-                                bg-[#6D001A] text-white
-                            {% else %}
-                                bg-white text-black border border-black
-                            {% endif %}">
+                        <span class="skill-tag px-4 py-1 text-[10px] font-bold uppercase 
+                            {% if skill.priority == 'primary' %} bg-[#0C6FBD] text-white {% else %} bg-white text-black {% endif %}">
                             {{ skill.category.name }}
                         </span>
+                    {% empty %}
+                        <span class="skill-tag px-4 py-1 text-[10px] font-bold uppercase bg-slate-100">Multidisciplinary</span>
                     {% endfor %}
                 </div>
+                
+                <a href="#" class="text-xs font-black uppercase tracking-widest flex items-center gap-2 group">
+                    View Full Profile 
+                    <span class="bg-black text-white p-1 rounded-full group-hover:translate-x-2 transition-transform">→</span>
+                </a>
             </div>
-            {% empty %}
-            <div class="col-span-full py-20 text-center border-2 border-dashed border-slate-300">
-                <p class="text-slate-400 font-medium">No artists have been vetted by the department yet.</p>
-            </div>
-            {% endfor %}
         </div>
-    </main>
+        {% empty %}
+        <div class="col-span-full py-40 text-center border-4 border-dashed border-slate-200">
+            <h2 class="text-4xl font-black text-slate-200 uppercase">Awaiting Vetting...</h2>
+        </div>
+        {% endfor %}
+    </div>
+</main>
 
-    <footer class="bg-white border-t-2 border-black p-12 text-center">
-        <p class="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-400">© 2026 Swahilipot Hub • Creative Technologist Division</p>
+    <footer class="bg-black text-white p-16 text-center border-t-4 border-[#0C6FBD]">
+        <div class="mb-8 flex justify-center gap-1">
+             <div class="w-2 h-2 bg-[#0C6FBD]"></div>
+             <div class="w-2 h-2 bg-[#6D001A]"></div>
+             <div class="w-2 h-2 bg-white"></div>
+        </div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.6em] opacity-50 mb-2">Swahilipot Hub • Creative Technologist Division</p>
+        <p class="text-[9px] font-medium opacity-30">EST. 2026 • PROJECT CAESAR V2.0</p>
     </footer>
 
 </body>

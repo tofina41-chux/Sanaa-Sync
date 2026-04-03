@@ -1,20 +1,29 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
-from .models import User, ArtistSkill
-from .forms import HubSignUpForm  # <--- Crucial: Importing your custom form
 from django.contrib.auth.decorators import login_required
-from resources.models import GigApplication # Assuming this is where applications live
+from .models import User
+from .forms import HubSignUpForm, UserUpdateForm  # Import the new form
+from resources.models import GigApplication
 
 @login_required
 def profile_view(request):
-    # Fetch applications this specific artist has made
+    # Fetch applications with status included
     my_applications = GigApplication.objects.filter(artist=request.user).select_related('gig')
+    return render(request, 'accounts/profile.html', {'applications': my_applications})
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile') # Redirect back to the dashboard
+    else:
+        form = UserUpdateForm(instance=request.user)
     
-    context = {
-        'user': request.user,
-        'applications': my_applications,
-    }
-    return render(request, 'accounts/profile.html', context)
+    return render(request, 'accounts/edit_profile.html', {'form': form})
+
+
 # --- 1. The Landing Page (The "Artist Showcase") ---
 def landing_page(request):
     # Only show artists who have been "Vetted" by the Hub Admin
