@@ -74,10 +74,16 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# core/settings.py
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sanaa_sync_db',  # Ensure everyone creates this name in phpMyAdmin
+        'USER': 'root',           # Default XAMPP user
+        'PASSWORD': '',           # Default XAMPP password is empty
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 
