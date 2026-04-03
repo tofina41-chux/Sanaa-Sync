@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="signup-container" style="background: #0a0a0a; min-height: 100vh; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif;">
+    <div class="signup-card" style="background: #161616; padding: 40px; border-radius: 8px; border: 1px solid #333; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        
+        <div class="logo-area" style="text-align: center; margin-bottom: 30px;">
+            <h2 style="font-weight: 700; letter-spacing: -1px; color: #007bff;">SANAA-SYNC</h2>
+            <p style="color: #888; font-size: 0.9rem;">Join the Swahilipot Creative Hub</p>
+        </div>
+
+        <form method="post" style="display: flex; flex-direction: column; gap: 20px;">
+            {% csrf_token %}
+            
+            <div class="form-fields">
+                {% for field in form %}
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 0.8rem; color: #aaa;">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p style="color: #ff4d4d; font-size: 0.75rem; margin-top: 5px;">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" style="background: #007bff; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: 0.3s;">
+                Create Artist Profile
+            </button>
+        </form>
+
+        <div style="margin-top: 25px; text-align: center; border-top: 1px solid #333; padding-top: 20px;">
+            <p style="font-size: 0.85rem; color: #666;">
+                Already a member? <a href="/accounts/login/" style="color: #007bff; text-decoration: none;">Sign In</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling the Django default inputs to match the theme */
+    input {
+        width: 100%;
+        padding: 10px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: white;
+        outline: none;
+    }
+    input:focus { border-color: #007bff; }
+    button:hover { background: #0056b3 !important; }
+</style>
+{% endblock %}

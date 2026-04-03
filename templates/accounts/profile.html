@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Sanaa-Sync | {{ user.username }}{% endblock %}
+
+{% block content %}
+<div style="background: #0a0a0a; min-height: 100vh; padding: 60px 20px; color: white;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        
+        <div style="background: #161616; padding: 40px; border-radius: 12px; border: 1px solid #333; display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px;">
+            <div>
+                <h1 style="font-size: 2rem; margin: 0; letter-spacing: -1px;">{{ user.first_name }} {{ user.last_name }}</h1>
+                <p style="color: #888; margin: 5px 0 15px 0;">@{{ user.username }} | {{ user.get_role_display }}</p>
+                
+                {% if user.is_vetted %}
+                    <span style="background: rgba(0, 255, 127, 0.1); color: #00ff7f; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid #00ff7f;">✓ VETTED ARTIST</span>
+                {% else %}
+                    <span style="background: rgba(255, 193, 7, 0.1); color: #ffc107; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid #ffc107;">⚠ VETTING PENDING</span>
+                {% endif %}
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 0.8rem; color: #666;">Member since {{ user.date_joined|date:"M Y" }}</p>
+                <a href="#" style="color: #007bff; text-decoration: none; font-size: 0.9rem;">Edit Profile</a>
+            </div>
+        </div>
+
+        <h2 style="font-size: 1.2rem; margin-bottom: 20px; color: #007bff;">MY GIG APPLICATIONS</h2>
+        <div style="display: grid; gap: 15px;">
+            {% for app in applications %}
+                <div style="background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.1rem;">{{ app.gig.title }}</h4>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85rem;">Applied on {{ app.created_at|date:"d M, Y" }}</p>
+                    </div>
+                    <div>
+                        <span style="color: #aaa; font-size: 0.85rem; font-style: italic;">Status: Sent to Caesar Portal</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="text-align: center; padding: 40px; border: 1px dashed #333; color: #444; border-radius: 8px;">
+                    You haven't applied for any gigs yet. <a href="{% url 'gig_list' %}" style="color: #007bff;">Browse Gigs</a>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

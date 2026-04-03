@@ -21,10 +21,10 @@ class User(AbstractUser):
     
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='creative')
     phone_number = models.CharField(max_length=15, blank=True)
-    is_vetted = models.BooleanField(default=False)
+    is_vetted = models.BooleanField(default=False) # This handles the 'Join the Hub' verification
     bio = models.TextField(blank=True)
-    age = models.PositiveIntegerField(null=True, blank=True) # Targeting 18-25
-    is_hub_staff = models.BooleanField(default=False) # True for Interns/Staff on the roster
+    age = models.PositiveIntegerField(null=True, blank=True) 
+    is_hub_staff = models.BooleanField(default=False) 
     
     def __str__(self):
         return f"{self.username} ({self.role})"
@@ -42,7 +42,7 @@ class ArtistSkill(models.Model):
     years_experience = models.PositiveIntegerField(default=0)
 
     class Meta:
-        unique_together = ('user', 'category') # Prevents duplicate entries for same category
+        unique_together = ('user', 'category')
 
     def __str__(self):
         return f"{self.user.username} - {self.category.name} ({self.priority})"
