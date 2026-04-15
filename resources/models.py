@@ -82,9 +82,26 @@ class GigApplication(models.Model):
 
     gig = models.ForeignKey(Gig, on_delete=models.CASCADE, related_name='applications')
     artist = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='gig_applications')
-    message = models.TextField(help_text="Why should you get this gig?")
+    message = models.TextField(help_text="Why should you get this gig?", blank=True)
+    voice_message = models.FileField(upload_to='voice_messages/', blank=True, null=True, help_text="Voice recording alternative to text message")
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
     applied_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.artist.username} -> {self.gig.title}"
+
+
+class SuccessStory(models.Model):
+    """Success stories showcasing artist achievements"""
+    artist_name = models.CharField(max_length=200, help_text="Name of the artist")
+    story = models.TextField(help_text="The success story text")
+    image = models.ImageField(upload_to='success_stories/', help_text="Artist image or story image")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_featured = models.BooleanField(default=True, help_text="Show on landing page")
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.artist_name} - Success Story"

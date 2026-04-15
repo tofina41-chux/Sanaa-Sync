@@ -1,0 +1,11 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+
+# Local environment
+.env
+
+# Django local database
+db.sqlite3

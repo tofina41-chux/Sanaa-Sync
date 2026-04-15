@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Resource, Booking, Gig, GigApplication
+from .models import Resource, Booking, Gig, GigApplication, SuccessStory
 
 @admin.register(Resource)
 class ResourceAdmin(admin.ModelAdmin):
@@ -36,7 +36,20 @@ class GigAdmin(admin.ModelAdmin):
 
 @admin.register(GigApplication)
 class GigApplicationAdmin(admin.ModelAdmin):
-    list_display = ('artist', 'gig', 'status', 'applied_on')
+    list_display = ('artist', 'gig', 'status', 'applied_on', 'has_voice_message')
     list_filter = ('status', 'applied_on')
     # Use autocomplete to handle large numbers of artists/gigs
     autocomplete_fields = ['artist', 'gig']
+    readonly_fields = ('voice_message',)
+
+    def has_voice_message(self, obj):
+        return bool(obj.voice_message)
+    has_voice_message.short_description = "Voice Message"
+    has_voice_message.boolean = True
+
+@admin.register(SuccessStory)
+class SuccessStoryAdmin(admin.ModelAdmin):
+    list_display = ('artist_name', 'is_featured', 'created_at')
+    list_filter = ('is_featured', 'created_at')
+    search_fields = ('artist_name', 'story')
+    readonly_fields = ('created_at', 'updated_at')
