@@ -19,7 +19,14 @@
         </div>
 
         <div style="background: #111; border: 1px solid #222; border-radius: 12px; padding: 40px;">
-            <form method="POST">
+            {% if not_vetted %}
+            <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                <h3 style="color: #ffc107; font-weight: 800; margin: 0 0 10px 0;">Vetting Required</h3>
+                <p style="color: #fff; margin: 0;">Your profile needs to be vetted before you can apply for gigs. Please contact an administrator to complete the vetting process.</p>
+            </div>
+            {% endif %}
+            
+            <form method="POST" enctype="multipart/form-data" {% if not_vetted %}onsubmit="return false;"{% endif %}>
                 {% csrf_token %}
                 
                 <h3 style="font-size: 1.1rem; font-weight: 800; text-transform: uppercase; margin-bottom: 25px; letter-spacing: 1px; color: #fff;">
@@ -27,19 +34,35 @@
                 </h3>
 
                 <div style="margin-bottom: 30px;">
-                    <textarea 
-                        name="message" 
-                        placeholder="Why are you the right artist for this gig?" 
-                        required
-                        style="width: 100%; height: 200px; background: #000; border: 2px solid #222; border-radius: 8px; color: #fff; padding: 20px; font-family: inherit; font-size: 1rem; outline: none; transition: 0.3s; resize: vertical;"
-                        onfocus="this.style.borderColor='#007bff'"
-                        onblur="this.style.borderColor='#222'"
-                    ></textarea>
+                    {{ form.message }}
                 </div>
 
+                <div style="margin-bottom: 30px;">
+                    <label style="display: block; margin-bottom: 10px; color: #fff; font-weight: 600;">Or record a voice message:</label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <button type="button" id="startRecording" {% if not_vetted %}disabled{% endif %} style="background: #28a745; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: {% if not_vetted %}not-allowed{% else %}pointer{% endif %};">🎤 Start Recording</button>
+                        <button type="button" id="stopRecording" {% if not_vetted %}disabled{% endif %} style="background: #dc3545; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: {% if not_vetted %}not-allowed{% else %}pointer{% endif %}; display: none;">⏹️ Stop Recording</button>
+                        <div id="recordingStatus" style="color: #ffc107; font-weight: 600; display: none;">🔴 Recording...</div>
+                        <audio id="audioPlayback" controls style="display: none;"></audio>
+                    </div>
+                    
+                    <input type="file" name="voice_message" id="voice_message" hidden>
+                    <small style="color: #666;">Your recording will be attached automatically after you stop recording.</small>
+                </div>
+
+                {% if form.errors %}
+                    <div style="color: #dc3545; margin-bottom: 20px;">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 <div style="display: flex; align-items: center; gap: 20px;">
-                    <button type="submit" style="flex: 2; background: #007bff; color: #fff; border: none; padding: 18px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#0056b3'" onmouseout="this.style.background='#007bff'">
-                        Confirm Application →
+                    <button type="submit" {% if not_vetted %}disabled{% endif %} style="flex: 2; background: {% if not_vetted %}#666{% else %}#007bff{% endif %}; color: #fff; border: none; padding: 18px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; cursor: {% if not_vetted %}not-allowed{% else %}pointer{% endif %}; transition: 0.2s;" onmouseover="this.style.background='{% if not_vetted %}#666{% else %}#0056b3{% endif %}'" onmouseout="this.style.background='{% if not_vetted %}#666{% else %}#007bff{% endif %}'">
+                        {% if not_vetted %}Vetting Required{% else %}Confirm Application →{% endif %}
                     </button>
                     
                     <a href="{% url 'gig_list' %}" style="flex: 1; text-align: center; color: #555; text-decoration: none; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">
@@ -54,4 +77,146 @@
         </p>
     </div>
 </div>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+let audioBlob;
+let stream;
+
+const startRecordingButton = document.getElementById('startRecording');
+const stopRecordingButton = document.getElementById('stopRecording');
+const audioPlayback = document.getElementById('audioPlayback');
+const voiceMessageInput = document.querySelector('input[name="voice_message"]');
+const recordingStatus = document.getElementById('recordingStatus');
+
+// Check if browser supports required APIs
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    startRecordingButton.disabled = true;
+    startRecordingButton.textContent = 'Recording Not Supported';
+    startRecordingButton.style.background = '#666';
+    console.warn('getUserMedia not supported in this browser');
+}
+
+startRecordingButton.addEventListener('click', async () => {
+    try {
+        console.log('Requesting microphone access...');
+        stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                sampleRate: 44100
+            } 
+        });
+        
+        console.log('Microphone access granted');
+        mediaRecorder = new MediaRecorder(stream, {
+            mimeType: 'audio/webm;codecs=opus'
+        });
+        
+        audioChunks = [];
+        mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) {
+                audioChunks.push(event.data);
+                console.log('Audio chunk received, size:', event.data.size);
+            }
+        };
+        
+        mediaRecorder.onstop = () => {
+            console.log('Recording stopped, processing audio...');
+            audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            audioPlayback.src = audioUrl;
+            audioPlayback.style.display = 'block';
+            
+            // Create a file from the blob and set it to the input
+            const file = new File([audioBlob], 'voice_message.webm', { type: 'audio/webm' });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            voiceMessageInput.files = dataTransfer.files;
+            
+            console.log('Audio file created and attached to form');
+            
+            // Stop all tracks to release microphone
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                console.log('Microphone tracks stopped');
+            }
+            
+            // Hide recording status
+            recordingStatus.style.display = 'none';
+        };
+        
+        mediaRecorder.onerror = (event) => {
+            console.error('MediaRecorder error:', event.error);
+            alert('Recording error: ' + event.error.message);
+        };
+        
+        mediaRecorder.start(1000); // Collect data every second
+        startRecordingButton.style.display = 'none';
+        stopRecordingButton.style.display = 'inline-block';
+        recordingStatus.style.display = 'block';
+        
+        console.log('Recording started');
+        
+    } catch (error) {
+        console.error('Error accessing microphone:', error);
+        
+        let errorMessage = 'Error accessing microphone. ';
+        if (error.name === 'NotAllowedError') {
+            errorMessage += 'Please allow microphone access and try again.';
+        } else if (error.name === 'NotFoundError') {
+            errorMessage += 'No microphone found.';
+        } else if (error.name === 'NotReadableError') {
+            errorMessage += 'Microphone is already in use by another application.';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        alert(errorMessage + '\n\nTroubleshooting:\n1. Allow microphone access in browser\n2. Close other apps using microphone\n3. Try refreshing the page');
+    }
+});
+
+stopRecordingButton.addEventListener('click', () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        console.log('Recording stopped by user');
+    }
+    
+    startRecordingButton.style.display = 'inline-block';
+    stopRecordingButton.style.display = 'none';
+    recordingStatus.style.display = 'none';
+});
+
+// Handle form submission to ensure audio is processed
+document.querySelector('form').addEventListener('submit', function(e) {
+    // If we have recorded audio, make sure it's attached to the form
+    if (audioBlob && voiceMessageInput.files.length === 0) {
+        console.log('Attaching recorded audio to form on submit');
+        const file = new File([audioBlob], 'voice_message.webm', { type: 'audio/webm' });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        voiceMessageInput.files = dataTransfer.files;
+    }
+    
+    // Stop any ongoing recording
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+    }
+    if (recognition && isRecording) {
+        recognition.stop();
+    }
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', () => {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    if (recognition && isRecording) {
+        recognition.stop();
+    }
+});
+</script>
+
 {% endblock %}

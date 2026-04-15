@@ -36,10 +36,16 @@ class GigAdmin(admin.ModelAdmin):
 
 @admin.register(GigApplication)
 class GigApplicationAdmin(admin.ModelAdmin):
-    list_display = ('artist', 'gig', 'status', 'applied_on')
+    list_display = ('artist', 'gig', 'status', 'applied_on', 'has_voice_message')
     list_filter = ('status', 'applied_on')
     # Use autocomplete to handle large numbers of artists/gigs
     autocomplete_fields = ['artist', 'gig']
+    readonly_fields = ('voice_message',)
+
+    def has_voice_message(self, obj):
+        return bool(obj.voice_message)
+    has_voice_message.short_description = "Voice Message"
+    has_voice_message.boolean = True
 
 @admin.register(SuccessStory)
 class SuccessStoryAdmin(admin.ModelAdmin):

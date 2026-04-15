@@ -82,7 +82,8 @@ class GigApplication(models.Model):
 
     gig = models.ForeignKey(Gig, on_delete=models.CASCADE, related_name='applications')
     artist = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='gig_applications')
-    message = models.TextField(help_text="Why should you get this gig?")
+    message = models.TextField(help_text="Why should you get this gig?", blank=True)
+    voice_message = models.FileField(upload_to='voice_messages/', blank=True, null=True, help_text="Voice recording alternative to text message")
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
     applied_on = models.DateTimeField(auto_now_add=True)
 

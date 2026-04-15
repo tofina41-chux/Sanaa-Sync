@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages  # Added for user feedback
 from .models import Gig, GigApplication, Resource, Booking
-from .forms import BookingForm
+from .forms import BookingForm, GigApplicationForm
 
 def gig_list(request):
     # Only show gigs that are currently open for applications
@@ -13,30 +13,39 @@ def gig_list(request):
 def apply_for_gig(request, gig_id):
     gig = get_object_or_404(Gig, id=gig_id)
     
-    # --- THE VETTING GATE (BACKEND SECURITY) ---
-    if not request.user.is_vetted:
-        messages.warning(request, f"Access Denied. Your profile must be vetted to apply for '{gig.title}'.")
-        return redirect('gig_list')
-    
     if request.method == 'POST':
-        # Check if they already applied to prevent double submissions
-        already_applied = GigApplication.objects.filter(gig=gig, artist=request.user).exists()
+        if not request.user.is_vetted:
+            messages.warning(request, f"Access Denied. Your profile must be vetted to apply for '{gig.title}'. Please contact an administrator to get vetted.")
+            return redirect('gig_list')
         
-        if already_applied:
-            messages.info(request, "You have already submitted an application for this gig.")
-            return redirect('profile')
+        form = GigApplicationForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Check if they already applied to prevent double submissions
+            already_applied = GigApplication.objects.filter(gig=gig, artist=request.user).exists()
+            
+            if already_applied:
+                messages.info(request, "You have already submitted an application for this gig.")
+                return redirect('profile')
 
-        # Create the application linked to the logged-in user
-        GigApplication.objects.create(
-            gig=gig,
-            artist=request.user,
-            message=request.POST.get('message', '')
-        )
-        
-        messages.success(request, f"Success! Your application for {gig.title} has been sent.")
-        return redirect('profile') # Redirect to profile to see the application status
+            # Create the application
+            application = form.save(commit=False)
+            application.gig = gig
+            application.artist = request.user
+            
+            application.save()
+            
+            messages.success(request, f"Success! Your application for {gig.title} has been sent.")
+            return redirect('profile') # Redirect to profile to see the application status
+        else:
+            messages.error(request, "Please provide either a text message or a voice recording.")
+    else:
+        form = GigApplicationForm()
     
-    return render(request, 'resources/apply_confirm.html', {'gig': gig})
+    context = {'gig': gig, 'form': form}
+    if not request.user.is_vetted:
+        context['not_vetted'] = True
+    
+    return render(request, 'resources/apply_confirm.html', context)
 
 def resource_list(request):
     """View available spaces, equipment, and instruments."""
