@@ -46,8 +46,8 @@
                         <audio id="audioPlayback" controls style="display: none;"></audio>
                     </div>
                     
-                    {{ form.voice_message }}
-                    <small style="color: #666;">Supported formats: MP3, WAV, M4A, etc.</small>
+                    <input type="file" name="voice_message" id="voice_message" hidden>
+                    <small style="color: #666;">Your recording will be attached automatically after you stop recording.</small>
                 </div>
 
                 {% if form.errors %}
