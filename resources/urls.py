@@ -2,11 +2,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # This 'name' must match exactly what you wrote in base.html
+    # Gigs
     path('gigs/', views.gig_list, name='gig_list'), 
     path('gigs/apply/<int:gig_id>/', views.apply_for_gig, name='apply_for_gig'),
     
-    # Resources and Booking URLs
-    path('resources/', views.resource_list, name='resource_list'),
-    path('resources/<int:resource_id>/book/', views.book_resource, name='book_resource'),
+    # New Gallery views for the Navbar
+    path('halls/', views.halls_list, name='halls_list'),
+    path('equipment/', views.equipment_list, name='equipment_list'),
+    
+    # The new Master Booking Form (replaces individual book_resource)
+    path('booking/', views.book_multiple, name='master_booking'),
 ]

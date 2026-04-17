@@ -3,6 +3,7 @@ from pathlib import Path
 import pymysql
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.mysql.features import DatabaseFeatures
+import cloudinary
 
 # --- DATABASE & MARIADB FIXES ---
 pymysql.version_info = (2, 2, 1, 'final', 0)
@@ -102,8 +103,19 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
+ 
 STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'profile'
+
+
+
+
+# Explicitly configure the Cloudinary SDK
+cloudinary.config(
+    cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key = CLOUDINARY_STORAGE['API_KEY'],
+    api_secret = CLOUDINARY_STORAGE['API_SECRET'],
+    secure = True
+)
