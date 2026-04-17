@@ -130,6 +130,7 @@
             
             {% if user.is_authenticated %}
                 <a href="{% url 'profile' %}">My Profile</a>
+                <a href="{% url 'my_bookings' %}">My Bookings</a>
                 
                 {% if user.is_staff %}
                     <a href="/admin/" style="color: var(--sph-orange);">Admin Portal</a>

@@ -108,3 +108,26 @@ def apply_for_gig(request, gig_id):
     else:
         form = GigApplicationForm()
     return render(request, 'resources/apply_confirm.html', {'gig': gig, 'form': form})
+
+# --- MY BOOKINGS LOGIC ---
+
+@login_required
+def my_bookings(request):
+    """View to list bookings made by the current user."""
+    # Pre-fetch items and their associated resource to prevent N+1 queries
+    bookings = Booking.objects.filter(user=request.user).order_by('-start_time').prefetch_related('items__resource')
+    return render(request, 'resources/my_bookings.html', {'bookings': bookings})
+
+@login_required
+def delete_booking(request, booking_id):
+    """View to allow users to cancel/delete their own bookings."""
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    
+    if request.method == 'POST':
+        # Ensure only pending or certain bookings can be cancelled, or just allow deletion.
+        # It's safer to delete or set status to cancelled. We'll simply delete it per user request.
+        booking.delete()
+        messages.success(request, "Booking successfully deleted.")
+        return redirect('my_bookings')
+        
+    return redirect('my_bookings')
