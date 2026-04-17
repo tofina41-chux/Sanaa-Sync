@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 class Category(models.Model):
     """Departments: Dancers, Poets, Fashion, Film, etc."""
     name = models.CharField(max_length=100, unique=True)

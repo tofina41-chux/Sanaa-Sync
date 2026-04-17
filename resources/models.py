@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from cloudinary.models import CloudinaryField # Required for resource images
 
 class Resource(models.Model):
     RESOURCE_TYPES = (
@@ -18,6 +19,8 @@ class Resource(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
     resource_type = models.CharField(max_length=15, choices=RESOURCE_TYPES)
+    # Added Image Field for the resource gallery
+    image = CloudinaryField('resource_image', null=True, blank=True) 
     description = models.TextField(blank=True)
     
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='available')
@@ -34,6 +37,10 @@ class Resource(models.Model):
 
 
 class Booking(models.Model):
+    """
+    This acts as the 'Header'. 
+    A user creates one Booking that can contain many items.
+    """
     STATUS_CHOICES = (
         ('pending', 'Pending Approval'),
         ('approved', 'Approved'),
@@ -42,7 +49,8 @@ class Booking(models.Model):
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bookings')
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
+    # Use a generic name for the booking session (e.g., "Mics and Hall for Rehearsal")
+    event_title = models.CharField(max_length=200, blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
@@ -56,12 +64,24 @@ class Booking(models.Model):
     )
 
     def __str__(self):
-        return f"{self.resource.name} | {self.user.username} | {self.start_time.strftime('%d %b')}"
+        return f"{self.event_title or 'Booking'} | {self.user.username} | {self.start_time.strftime('%d %b')}"
 
-# --- NEW GIG & MARKETPLACE LOGIC ---
+class BookingItem(models.Model):
+    """
+    This links multiple resources to a single booking.
+    When the user fills the 'Master Form', we create one BookingItem for each resource.
+    """
+    booking = models.ForeignKey(Booking, related_name='items', on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
+    quantity_requested = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity_requested} x {self.resource.name} for {self.booking}"
+
+
+# --- GIG & SUCCESS STORIES REMAIN THE SAME ---
 
 class Gig(models.Model):
-    """Opportunities for artists to apply for events/work"""
     title = models.CharField(max_length=200)
     description = models.TextField()
     event_date = models.DateTimeField()
@@ -73,32 +93,24 @@ class Gig(models.Model):
         return self.title
 
 class GigApplication(models.Model):
-    """The link between an Artist and a Gig"""
-    STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('declined', 'Declined'),
-    )
-
+    STATUS_CHOICES = (('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined'))
     gig = models.ForeignKey(Gig, on_delete=models.CASCADE, related_name='applications')
     artist = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='gig_applications')
-    message = models.TextField(help_text="Why should you get this gig?", blank=True)
-    voice_message = models.FileField(upload_to='voice_messages/', blank=True, null=True, help_text="Voice recording alternative to text message")
+    message = models.TextField(blank=True)
+    voice_message = models.FileField(upload_to='voice_messages/', blank=True, null=True)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
     applied_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.artist.username} -> {self.gig.title}"
 
-
 class SuccessStory(models.Model):
-    """Success stories showcasing artist achievements"""
-    artist_name = models.CharField(max_length=200, help_text="Name of the artist")
-    story = models.TextField(help_text="The success story text")
-    image = models.ImageField(upload_to='success_stories/', help_text="Artist image or story image")
+    artist_name = models.CharField(max_length=200)
+    story = models.TextField()
+    image = CloudinaryField('success_story_image', null=True, blank=True) # Switched to Cloudinary
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_featured = models.BooleanField(default=True, help_text="Show on landing page")
+    is_featured = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['-created_at']

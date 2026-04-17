@@ -16,42 +16,39 @@
         }
 
         @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); } /* Moves half the width of the doubled text */
-}
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); } 
+        }
 
-.marquee-container {
-    overflow: hidden;
-    white-space: nowrap;
-    position: relative;
-    background: #000;
-    padding: 20px 0;
-    border-top: 1px solid #222;
-    border-bottom: 1px solid #222;
-}
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            background: #000;
+            padding: 20px 0;
+            border-top: 1px solid #222;
+            border-bottom: 1px solid #222;
+        }
 
-.marquee-content {
-    display: inline-block;
-    animation: marquee 20s linear infinite;
-    font-size: 5rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -2px;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
-}
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-size: 5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+        }
 
-.marquee-content span {
-    padding-right: 50px;
-}
+        .marquee-content span {
+            padding-right: 50px;
+        }
 
-/* Highlighted word in the animation */
-.highlight-text {
-    color: var(--sph-blue);
-    -webkit-text-stroke: 0;
-}
-
-
+        .highlight-text {
+            color: var(--sph-blue);
+            -webkit-text-stroke: 0;
+        }
 
         body { 
             background-color: var(--sph-dark); 
@@ -93,7 +90,6 @@
 
         .nav-links a:hover { color: var(--sph-blue); }
 
-        /* Fancy Form Inputs */
         input, textarea, select {
             width: 100%; padding: 12px; margin-top: 8px;
             background: #1a1a1a; border: 1px solid #333;
@@ -113,19 +109,24 @@
 <body>
     <nav>
         {% if messages %}
-<div class="fixed top-24 right-8 z-[100] flex flex-col gap-3">
-    {% for message in messages %}
-    <div class="px-6 py-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4 animate-bounce">
-        <div class="w-2 h-2 rounded-full {% if message.tags == 'error' %}bg-red-600{% else %}bg-[#0C6FBD]{% endif %}"></div>
-        <p class="text-xs font-black uppercase tracking-widest">{{ message }}</p>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
+        <div class="fixed top-24 right-8 z-[100] flex flex-col gap-3">
+            {% for message in messages %}
+            <div class="px-6 py-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4 animate-bounce">
+                <div class="w-2 h-2 rounded-full {% if message.tags == 'error' %}bg-red-600{% else %}bg-[#0C6FBD]{% endif %}"></div>
+                <p class="text-xs font-black uppercase tracking-widest">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <a href="/" class="logo">SANAA-SYNC</a>
+        
         <div class="nav-links">
             <a href="{% url 'gig_list' %}">Gigs</a>
-            <a href="{% url 'resource_list' %}">Book Equipment</a>
+            
+            <a href="{% url 'halls_list' %}">Halls</a>
+            <a href="{% url 'equipment_list' %}">Equipment</a>
+            <a href="{% url 'master_booking' %}" style="color: var(--sph-blue);">Book Now</a>
             
             {% if user.is_authenticated %}
                 <a href="{% url 'profile' %}">My Profile</a>

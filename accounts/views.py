@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import User
 from .forms import HubSignUpForm, UserUpdateForm
-from resources.models import GigApplication, SuccessStory
+from resources.models import GigApplication, SuccessStory, Resource
 
 @login_required
 def profile_view(request):
@@ -27,16 +27,29 @@ def edit_profile(request):
 
 # --- 1. The Landing Page (The "Artist Showcase") ---
 def landing_page(request):
-    vetted_artists = User.objects.filter(role='creative', is_vetted=True).prefetch_related('skills')
-    success_stories = SuccessStory.objects.filter(is_featured=True)[:6]  # Show 6 featured stories
+    # Fetch Success Stories (your milestones)
+    success_stories = SuccessStory.objects.all().order_by('-created_at')
+    
+    # Fetch Equipment (Resource type 'gear' or 'instrument')
+    equipment = Resource.objects.filter(
+        resource_type__in=['gear', 'instrument'], 
+        status='available'
+    )[:6] # Limit to 6 so the page isn't too long
+    
+    # Fetch Halls (Resource type 'hall')
+    halls = Resource.objects.filter(
+        resource_type='hall', 
+        status='available'
+    )
     
     context = {
-        'artists': vetted_artists,
         'success_stories': success_stories,
-        'page_title': "Sanaa-Sync | Creative Directory"
+        'equipment': equipment,
+        'halls': halls,
+        'page_title': 'Sanaa-Sync V2 | Home'
     }
+    
     return render(request, 'accounts/landing.html', context)
-
 # --- 2. The Success Story Detail Page ---
 def story_detail(request, story_id):
     story = get_object_or_404(SuccessStory, pk=story_id)
@@ -50,7 +63,7 @@ def signup(request):
             user = form.save(commit=False)
             user.role = 'creative'
             user.save()
-            
+             
             login(request, user)
             messages.info(request, "Welcome to Sanaa-Sync! Your account is currently under review.")
             return redirect('landing_page') 

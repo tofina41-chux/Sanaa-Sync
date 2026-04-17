@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Sanaa-Sync | Master Booking{% endblock %}
+
+{% block content %}
+<div style="background: #0a0a0a; min-height: 100vh; padding: 60px 20px; color: white;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        
+        <header style="margin-bottom: 40px; border-left: 4px solid #007bff; padding-left: 20px;">
+            <h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -2px; margin: 0;">RESERVE RESOURCES</h1>
+            <p style="color: #888; margin-top: 5px;">Book multiple spaces and equipment for your event.</p>
+        </header>
+
+        <form method="POST" style="background: #111; padding: 40px; border-radius: 12px; border: 1px solid #222;">
+            {% csrf_token %}
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="font-size: 1rem; color: #007bff; text-transform: uppercase; margin-bottom: 20px;">1. Event Information</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="grid-column: span 2;">
+                        {{ form.event_title.label_tag }}
+                        {{ form.event_title }}
+                    </div>
+                    <div>
+                        {{ form.start_time.label_tag }}
+                        {{ form.start_time }}
+                    </div>
+                    <div>
+                        {{ form.end_time.label_tag }}
+                        {{ form.end_time }}
+                    </div>
+                </div>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="font-size: 1rem; color: #007bff; text-transform: uppercase; margin-bottom: 20px;">2. Select Quantities</h3>
+                <div style="border: 1px solid #222; border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse; background: #0d0d0d;">
+                        <thead>
+                            <tr style="background: #161616; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #555;">
+                                <th style="padding: 15px;">Item Name</th>
+                                <th style="padding: 15px;">Type</th>
+                                <th style="padding: 15px;">Max Available</th>
+                                <th style="padding: 15px; width: 100px;">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resource in resources %}
+                            <tr style="border-top: 1px solid #222;">
+                                <td style="padding: 15px; font-weight: 600;">{{ resource.name }}</td>
+                                <td style="padding: 15px; color: #888; font-size: 0.8rem;">{{ resource.get_resource_type_display }}</td>
+                                <td style="padding: 15px; color: #888;">{{ resource.quantity }}</td>
+                                <td style="padding: 15px;">
+                                    <input type="number" name="qty_{{ resource.id }}" value="0" min="0" max="{{ resource.quantity }}" 
+                                           style="width: 70px; background: #000; border: 1px solid #333; color: #007bff; text-align: center; font-weight: bold;">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <button type="submit" class="btn-sph" style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 1px;">
+                SUBMIT BOOKING REQUEST
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Match the base styles */
+    label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: #aaa; font-weight: 600; }
+    input[type="text"], input[type="datetime-local"] {
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}

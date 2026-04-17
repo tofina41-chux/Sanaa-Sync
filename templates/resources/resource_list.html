@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Sanaa-Sync | Book Resources{% endblock %}
+{% block title %}Sanaa-Sync | {{ title|default:"Resources" }}{% endblock %}
 
 {% block content %}
 <div style="background: #0a0a0a; min-height: 100vh; padding: 60px 20px; color: white;">
     <div style="max-width: 1100px; margin: 0 auto;">
 
         <header style="margin-bottom: 50px; border-left: 4px solid #007bff; padding-left: 20px;">
-            <h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -2px; margin: 0;">AVAILABLE RESOURCES</h1>
-            <p style="color: #888; margin-top: 5px;">Book Hub Spaces and Equipment</p>
+            <h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -2px; margin: 0; text-transform: uppercase;">
+                {{ title|default:"Available Resources" }}
+            </h1>
+            <p style="color: #888; margin-top: 5px;">Explore Hub Spaces and Equipment</p>
         </header>
 
         {% if messages %}
         {% for message in messages %}
-        <div
-            style="margin-bottom: 20px; padding: 15px; border-radius: 4px; background: {% if message.tags == 'error' %}#ff4c4c{% elif message.tags == 'success' %}#00a84e{% else %}#007bff{% endif %};">
+        <div style="margin-bottom: 20px; padding: 15px; border-radius: 4px; background: {% if message.tags == 'error' %}#ff4c4c{% elif message.tags == 'success' %}#00a84e{% else %}#007bff{% endif %};">
             {{ message }}
         </div>
         {% endfor %}
@@ -22,26 +23,21 @@
 
         {% if user.is_authenticated and user_bookings %}
         <section style="margin-bottom: 60px;">
-            <h2
-                style="font-size: 1.2rem; color: #fff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
-                My Current Bookings</h2>
+            <h2 style="font-size: 1.2rem; color: #fff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                My Recent Bookings</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
                 {% for booking in user_bookings %}
-                <div
-                    style="background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; border-left: 3px solid {% if booking.status == 'approved' %}#00a84e{% elif booking.status == 'pending' %}#ffc107{% else %}#ff4c4c{% endif %};">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                        <h4 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ booking.resource.name }}</h4>
-                        <span
-                            style="font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; 
+                <div style="background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; border-left: 3px solid {% if booking.status == 'approved' %}#00a84e{% elif booking.status == 'pending' %}#ffc107{% else %}#ff4c4c{% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <h4 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ booking.event_title|default:"Unnamed Event" }}</h4>
+                        <span style="font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; 
                             background: {% if booking.status == 'approved' %}rgba(0,168,78,0.1){% else %}#222{% endif %};
                             color: {% if booking.status == 'approved' %}#00a84e{% elif booking.status == 'pending' %}#ffc107{% else %}#ff4c4c{% endif %}; border: 1px solid currentColor;">
                             {{ booking.status }}
                         </span>
                     </div>
                     <p style="color: #666; font-size: 0.8rem; margin: 0;">
-                        📅 {{ booking.start_time|date:"d M" }} • {{ booking.start_time|time:"H:i" }} - {{
-                        booking.end_time|time:"H:i" }}
+                        📅 {{ booking.start_time|date:"d M" }} • {{ booking.start_time|time:"H:i" }} - {{ booking.end_time|time:"H:i" }}
                     </p>
                 </div>
                 {% endfor %}
@@ -50,26 +46,38 @@
         </section>
         {% endif %}
 
-        <div class="resource-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px;">
+        <div style="margin-bottom: 30px; display: flex; justify-content: flex-end;">
+            <a href="{% url 'master_booking' %}" style="background: #007bff; color: white; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
+                Open Master Booking Form →
+            </a>
+        </div>
+
+        <div class="resource-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px;">
             {% for resource in resources %}
-            <div class="resource-card"
-                style="background: #161616; border: 1px solid #333; padding: 30px; border-radius: 8px; transition: 0.3s; position: relative; overflow: hidden;">
-                <div
-                    style="font-size: 0.7rem; color: #007bff; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">
-                    {{ resource.get_resource_type_display }}</div>
+            <div class="resource-card" style="background: #161616; border: 1px solid #333; padding: 30px; border-radius: 8px; transition: 0.3s; position: relative; overflow: hidden;">
+                
+                {% if resource.image %}
+                <div style="height: 180px; width: 100%; margin: -30px -30px 20px -30px; width: calc(100% + 60px); overflow: hidden;">
+                    <img src="{{ resource.image.url }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
+                </div>
+                {% endif %}
+
+                <div style="font-size: 0.7rem; color: #007bff; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">
+                    {{ resource.get_resource_type_display }}
+                </div>
+                
                 <h3 style="margin: 0 0 15px 0; font-size: 1.4rem;">{{ resource.name }}</h3>
 
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: #666; font-size: 0.8rem;">📦 {{ resource.quantity }} Available</span>
-                    <a href="{% url 'book_resource' resource.id %}"
-                        style="background: #007bff; color: white; text-decoration: none; padding: 8px 18px; border-radius: 4px; font-weight: 600; font-size: 0.85rem;">Book
-                        Now</a>
+                    <span style="color: #666; font-size: 0.8rem;">📦 {{ resource.quantity }} in Stock</span>
+                    <a href="{% url 'master_booking' %}" class="book-btn" style="border: 1px solid #007bff; color: #007bff; text-decoration: none; padding: 8px 18px; border-radius: 4px; font-weight: 600; font-size: 0.85rem; transition: 0.2s;">
+                        Select
+                    </a>
                 </div>
             </div>
             {% empty %}
             <div style="grid-column: 1 / -1; text-align: center; padding: 50px; border: 1px dashed #333; color: #666;">
-                No resources available at the moment.
+                No {{ title|lower|default:"resources" }} found in this category.
             </div>
             {% endfor %}
         </div>
@@ -81,6 +89,15 @@
         border-color: #007bff !important;
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
+    }
+    .resource-card:hover img {
+        opacity: 1 !important;
+        transform: scale(1.05);
+        transition: 0.5s;
+    }
+    .book-btn:hover {
+        background: #007bff;
+        color: white !important;
     }
 </style>
 {% endblock %}
