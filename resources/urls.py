@@ -12,4 +12,8 @@ urlpatterns = [
     
     # The new Master Booking Form (replaces individual book_resource)
     path('booking/', views.book_multiple, name='master_booking'),
+    
+    # My Bookings
+    path('my-bookings/', views.my_bookings, name='my_bookings'),
+    path('my-bookings/delete/<int:booking_id>/', views.delete_booking, name='delete_booking'),
 ]
