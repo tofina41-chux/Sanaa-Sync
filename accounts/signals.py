@@ -1,3 +1,4 @@
+from resources.models import Gig
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
@@ -76,3 +77,49 @@ def send_welcome_email(sender, instance, created, **kwargs):
             )
         except Exception as e:
             logger.error(f" Welcome email failed for {instance.username}: {e}")
+
+
+
+@receiver(post_save, sender=Gig)
+def notify_artists_of_new_gig(sender, instance, created, **kwargs):
+    """
+    When a new Gig is created and is_open=True, notify all vetted artists.
+    """
+    if created and instance.is_open:
+        # Get only the emails of artists who have been vetted by the Dept
+        from accounts.models import User
+
+        recipient_list = User.objects.filter(
+            is_vetted=True, 
+            is_active=True
+        ).values_list('email', flat=True)
+
+        if recipient_list:
+            try:
+                subject = f"NEW GIG: {instance.title} at Swahilipot Hub"
+                message = f"""
+                Hi Creative,
+
+                A new opportunity has just been posted on Sanaa-Sync!
+
+                Gig: {instance.title}
+                Date: {instance.event_date}
+                Description: {instance.description[:100]}...
+
+                Log in to the Caesar Portal to apply now:
+                {settings.SITE_URL if hasattr(settings, 'SITE_URL') else 'http://127.0.0.1:8000'}/gigs/
+
+                Don't miss out!
+                Swahilipot Creatives Dept.
+                """
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.EMAIL_HOST_USER,
+                    list(recipient_list),
+                    fail_silently=False,
+                )
+                print(f" Gig Alert sent to {len(recipient_list)} vetted artists.")
+            except Exception as e:
+                logger.error(f" Gig Alert failed: {e}")
