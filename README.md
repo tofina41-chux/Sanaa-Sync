@@ -1,45 +1,39 @@
-# Sanaa-Sync: Swahilipot Hub Creatives Management System
-The Professional Pulse of Swahilipot Hub Creatives Department.
+# Sanaa-Sync:  Swahilipot Hub Creatives Management System
+Sanaa-Sync is a centralized platform for the Swahilipot Hub Creatives Department. It streamlines the connection between vetted artists and professional opportunities (Gigs) while providing a "Caesar Portal" for user profile management.
 
-An integrated Resource & Talent Management Ecosystem designed to bridge the gap between creative passion and professional excellence.
+## Core Features
+### Artist Vetting System: 
+A custom User model with admin-controlled vetting (is_vetted) and activation statuses.
 
-## Vision & Progress
-Talent Intelligence: A dynamic database tracking artist skills and vetted Success Stories to increase market value.
+### Gig Management: 
+Centralized resource tracking for opportunities, including budget, requirements, and event dates.
 
-Automated Operations: A smart booking engine for Hub spaces (Mekatilili, Ali Mazrui, Amphitheatre) and equipment.
+### Automated Notifications: 
+Django Signals-based email system that alerts vetted artists the moment a new gig is posted.
 
-Curated Marketplace: A secure bridge for partners to post gigs, allowing artists to apply and track their professional growth in real-time.
+### Talent Directory: 
+A public-facing list of vetted creatives for external clients.
 
-## Functional Modules (Implemented & Active)
-1. The Artist & Resource Registry
-Dynamic Resource Catalog: Digital tracking for the Amphitheatre, Mekatilili Hall, Ali Mazrui Hall, and equipment (Drums, Guitars, Mics).
+## Technical Stack
 
-Unique Routing: Every resource is indexed with a unique slug for professional URL routing and SEO.
+Framework: Django 6.0.3
 
-Success Stories: (New!) Highlighting artist milestones directly on the landing page to build credibility with partners.
+Database: MariaDB (via XAMPP/MySQL)
 
-2. Marketplace & Gigs (Collaborative Release)
-The Application Loop: Artists can now apply for posted gigs with personalized messages.
+Environment: Python 3.12+
 
-Live Status Tracking: Real-time visibility into application states: Pending Approval, Accepted, or Declined.
+Frontend: Bootstrap / Django Templates
 
-Opportunity Push: Allows the Dept. Head to curate high-value opportunities for vetted artists.
+## Notification Engine (Signals)
+The project utilizes Django Signals to maintain a decoupled architecture:
 
-3. Internal Operations
-Digital Booking Workflow: Replaces verbal/email requests with a "Greenlight" system. Requests stay "Pending" until admin approval.
+  Location: accounts/signals.py
 
-Media Handling: Integrated Pillow for server-side image processing of artist portfolios and success story assets.
+  Triggers:
 
-## Technical Stack & Implementation
-Backend: Django 6.0.3 (Python)
+  post_save (User): Sends a welcome email on signup and a "Verified" email when an admin vets the user.
 
-Database: MariaDB/MySQL (via XAMPP)
-
-Frontend: Tailwind CSS (Professional Blue Aesthetic)
-
-Key Libraries: * Pillow: Image processing and optimization.
-
-Django-Environ: Secure environment variable management.
+post_save (Gig): Sends a broadcast email to all is_vetted=True users when a new open gig is created.
 
 ## File Structure (Current)
 
@@ -62,18 +56,47 @@ Phase 4 (Scaling): Transitioning from distributed local XAMPP environments to a 
 Phase 5 (Mobile): Progressive Web App (PWA) capabilities for on-the-go booking and gig alerts.
 
 ## Setup & Installation for Developers
-Clone the Repo: git clone https://github.com/[your-repo]/sanaa-sync.git
+Clone the Repo: 
+  git clone https://github.com/[your-repo]/sanaa-sync.git
 
-Setup Environment: python -m venv venv and source venv/Scripts/activate
+Setup Environment:
+  python -m venv venv 
+  source venv/Scripts/activate
 
-Install Dependencies: pip install -r requirements.txt (Includes Pillow, Django, etc.)
+Install Dependencies: 
+  pip install -r requirements.txt (Includes Pillow, Django, etc.)
 
-Database Migration: * Ensure XAMPP MySQL is running.
+Database Migration: 
+* Ensure XAMPP MySQL is running. Update core/settings.py with your local database credentials.
 
-python manage.py migrate
+  python manage.py migrate
 
-Run Server: python manage.py runserver
+Run Server: 
+  python manage.py runserver
+  
+## The "Sync" Migration (CRITICAL)
+If your local DB is out of sync with the latest model changes:
 
-Lead Developer: Tofina
+  python manage.py migrate resources zero --fake
+  python manage.py migrate resources --fake-initial
+  python manage.py migrate
+
+## Troubleshooting
+  Duplicate Column Error: 
+    Run python manage.py migrate <app_name> <last_working_migration> --fake to align the ledger.
+
+  Signals Not Firing: 
+    Check accounts/apps.py to ensure the ready() method imports the signals file.
+
+  Emails Not Appearing: 
+    In development, check the terminal console. Emails are routed to the console backend by default.
+
+## Contribution Guidelines
+  Always create a new branch for features: git checkout -b feature/your-feature.
+
+  Never push migration files that haven't been tested against a clean database.
+  
+  
+Lead Developer: Wafula(tofina41-chux)
 
 Collaborators: Nassoro (Marketplace Logic), Kim (Success Stories/UI), kevin(Bookings logic)
